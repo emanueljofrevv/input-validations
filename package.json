@@ -2,7 +2,7 @@
   "name": "email-validator",
   "version": "1.0.0",
   "description": "A simple email validator",
-  "main": "src/emailValidator.js",
+  "main": "src/email-validator/main.js",
   "scripts": {
     "test": "jest"
   },

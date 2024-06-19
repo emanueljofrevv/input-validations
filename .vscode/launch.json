@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Launch Program",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/emailValidator.js"
+      "program": "${workspaceFolder}/src/email-validator/main"
     }
   ]
 }
