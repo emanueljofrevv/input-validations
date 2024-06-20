@@ -1,30 +1,45 @@
-/* -------------------------------------------------------------------------- */
-/*                              HELPER FUNCTIONS                              */
-/* -------------------------------------------------------------------------- */
+const { Blob } = require("buffer");
 
-function isValidLength(domain) {
-  const octets = new Blob([domain]).size;
-  return octets <= 253;
+// Helper functions for domain part validation
+function isValidOverallLength(domain) {
+  return new Blob([domain]).size <= 253;
 }
 
-function containsValidCharacters(domain) {
-  // Regex to check valid characters excluding special cases like leading/trailing characters
-  const validCharsRegex = /^[a-zA-Z0-9.-]+$/;
-  return validCharsRegex.test(domain);
-}
-
-function hasValidLabelStructure(domain) {
+function hasValidLabels(domain) {
   const labels = domain.split(".");
-  if (labels.some((label) => label.length > 63 || label.length < 1))
-    return false;
-  if (
-    labels.some((label) => !/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/.test(label))
-  )
-    return false; // No leading/trailing hyphens
-  if (domain.includes("..") || domain.endsWith(".") || domain.startsWith("."))
-    return false; // No leading/trailing or consecutive dots
+  return labels.every(
+    (label) =>
+      new Blob([label]).size <= 63 &&
+      /^[a-zA-Z0-9-]*$/.test(label) &&
+      !label.startsWith("-") &&
+      !label.endsWith("-")
+  );
+}
 
-  return true;
+function hasMinimumLabels(domain) {
+  const labels = domain.split(".");
+  return labels.length > 1 && labels[0].length > 0 && labels[1].length > 0;
+}
+
+function hasNoConsecutiveHyphens(domain) {
+  return !domain.includes("--");
+}
+
+function hasNoConsecutiveDots(domain) {
+  return !domain.includes("..");
+}
+
+function doesNotStartOrEndWithDot(domain) {
+  return !domain.startsWith(".") && !domain.endsWith(".");
+}
+
+function hasValidTLD(domain) {
+  const tld = domain.substring(domain.lastIndexOf(".") + 1);
+  return /^[a-zA-Z]{1,}$/.test(tld) && new Blob([tld]).size <= 63; // Adjusted to accept a minimum of 1 character
+}
+
+function hasNoLeadingOrTrailingSpaces(domain) {
+  return domain === domain.trim();
 }
 
 function isIPAddress(domain) {
@@ -34,23 +49,28 @@ function isIPAddress(domain) {
 }
 
 function isValidIPAddress(domain) {
-  // Further validation for IP addresses can be implemented here if needed
-  return true; // Placeholder
+  return isIPAddress(domain); // Returns true if domain is a valid IP address
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                    MAIN                                    */
-/* -------------------------------------------------------------------------- */
-
+// Main validation function using functional composition
 function validateDomainPart(domain) {
-  if (!isValidLength(domain)) return false;
-  if (!containsValidCharacters(domain)) return false;
-  if (!hasValidLabelStructure(domain)) return false;
-  if (isIPAddress(domain) && !isValidIPAddress(domain)) return false;
+  if (isIPAddress(domain)) {
+    return isValidIPAddress(domain);
+  }
 
-  return true; // Domain is valid
+  const validations = [
+    isValidOverallLength,
+    hasValidLabels,
+    hasMinimumLabels,
+    hasNoConsecutiveHyphens,
+    hasNoConsecutiveDots,
+    doesNotStartOrEndWithDot,
+    hasValidTLD,
+    hasNoLeadingOrTrailingSpaces,
+  ];
+
+  return validations.every((validation) => validation(domain));
 }
 
-module.exports = {
-  validateDomainPart,
-}; // Export all functions for testing
+// Export the function for use in other modules
+module.exports = { validateDomainPart };
