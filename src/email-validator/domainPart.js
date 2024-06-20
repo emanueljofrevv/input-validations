@@ -35,7 +35,11 @@ function doesNotStartOrEndWithDot(domain) {
 
 function hasValidTLD(domain) {
   const tld = domain.substring(domain.lastIndexOf(".") + 1);
-  return /^[a-zA-Z]{1,}$/.test(tld) && new Blob([tld]).size <= 63; // Adjusted to accept a minimum of 1 character
+  // Ensure TLD is at least 1 character, does not end with a digit, and isn't fully numeric
+  return (
+    /^[a-zA-Z0-9-]*[a-zA-Z-]$/.test(tld) && // TLD can contain digits and hyphens, but must end with a letter or a hyphen that is not leading
+    new Blob([tld]).size <= 63
+  );
 }
 
 function hasNoLeadingOrTrailingSpaces(domain) {
@@ -43,18 +47,25 @@ function hasNoLeadingOrTrailingSpaces(domain) {
 }
 
 function isIPAddress(domain) {
-  // This remains unchanged; include if IPs need to be validated separately
+  return (
+    /^(\d{1,3}\.){3}\d{1,3}$/.test(domain) && // Simplified IP address check
+    domain.split(".").every((num) => parseInt(num, 10) <= 255)
+  );
+}
+
+function isValidIPAddress(ip) {
+  // Regular expression to check if the string is a valid IPv4 address
   const ipPattern =
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return ipPattern.test(domain);
+    /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
+
+  return ipPattern.test(ip);
 }
 
-function isValidIPAddress(domain) {
-  return isIPAddress(domain); // Returns true if domain is a valid IP address
-}
-
-// Main validation function using functional composition
 function validateDomainPart(domain) {
+  if (domain.length < 3) {
+    return false; // Minimum domain length check
+  }
+
   if (isIPAddress(domain)) {
     return isValidIPAddress(domain);
   }
@@ -73,5 +84,13 @@ function validateDomainPart(domain) {
   return validations.every((validation) => validation(domain));
 }
 
-// Export the function for use in other modules
-module.exports = { validateDomainPart };
+// Additional function to validate basic structure
+function hasBasicStructure(email) {
+  const [localPart, domainPart] = email.split("@");
+  if (!localPart || !domainPart) {
+    return false; // Ensures both local and domain parts are present
+  }
+  return validateDomainPart(domainPart);
+}
+
+module.exports = { validateDomainPart, hasBasicStructure };
