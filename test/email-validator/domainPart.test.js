@@ -1,86 +1,104 @@
 const { validateDomainPart } = require("../../src/email-validator/domainPart");
 
-describe("Domain Part Length Validations", () => {
-  test("should return true for valid email", () => {
-    const email = "example@example.com";
-    expect(validateDomainPart(email)).toBe(true);
+describe("Domain Part Validation", () => {
+  // Domain part length validation
+  test("Domain labels may be no more than 63 octets long", () => {
+    const domain = `${"a".repeat(63)}.com`;
+    expect(validateDomainPart(domain)).toBe(true);
   });
 
-  // 5.1.1
-  test("should return true for min SDL lenght of 1 octet", () => {
-    const email = "name@a.com";
-    expect(validateDomainPart(email)).toBe(true);
+  test("Domain part, min label length of 1 octet", () => {
+    expect(validateDomainPart("b.com")).toBe(true);
   });
 
-  // 5.1.2
-  test("should return true for max SDL length of 63 octets", () => {
-    const email =
-      "example@this-is-a-very-long-domain-part-label-with-many-many-characters.com";
-    expect(validateDomainPart(email)).toBe(true);
+  test("Domain part, max SDL length of 63 octets", () => {
+    const domain = `${"a".repeat(63)}.com`;
+    expect(validateDomainPart(domain)).toBe(true);
   });
 
-  // 5.1.3
-  test("should return false for SDL length of more than 63 octets", () => {
-    const email =
-      "example@this-is-a-very-long-domain-part-label-with-many-many-many-characters.com";
-    expect(validateDomainPart(email)).toBe(false);
+  test("Domain part, SDL length of more than 63 octets", () => {
+    const domain = `${"a".repeat(64)}.com`;
+    expect(validateDomainPart(domain)).toBe(false);
   });
 
-  // 5.1.4
-  test("should return false for no SDL", () => {
-    const email = "name@.com";
-    expect(validateDomainPart(email)).toBe(false);
+  test("Domain part, no SDL", () => {
+    expect(validateDomainPart(".com")).toBe(false);
   });
 
-  // 5.1.5
-  test("should return false for no domain part", () => {
-    const email = "name@";
-    expect(validateDomainPart(email)).toBe(false);
+  test("Domain part, no domain", () => {
+    expect(validateDomainPart("")).toBe(false);
   });
 
-  // 5.2.1
-  test("should return false for TDL min length of 1 octet ", () => {
-    const email = "name@example.a";
-    expect(validateDomainPart(email)).toBe(true);
+  test("Domain part, TDL min length of 1 octet", () => {
+    expect(validateDomainPart("example.a")).toBe(true);
   });
 
-  // 5.2.2
-  test("should return false for TDL max length of 63 octets", () => {
-    const email =
-      "name@example.this-is-a-very-long-domain-part-label-with-many-many-characters";
-    expect(validateDomainPart(email)).toBe(true);
+  test("Domain part, TDL max length of 63 octets", () => {
+    const tld = "a".repeat(63);
+    expect(validateDomainPart(`example.${tld}`)).toBe(true);
   });
 
-  // 5.2.3
-  test("should return false for TDL of more than 63 octets", () => {
-    const email =
-      "name@example.this-is-a-very-long-domain-part-label-with-many-many-many-characters";
-    expect(validateDomainPart(email)).toBe(false);
+  test("Domain part, TDL of more than 63 octets", () => {
+    const tld = "a".repeat(64);
+    expect(validateDomainPart(`example.${tld}`)).toBe(false);
   });
 
-  // 5.2.4
-  test("should return false for no TDL", () => {
-    const email = "name@example";
-    expect(validateDomainPart(email)).toBe(false);
+  test("Domain part, no TDL", () => {
+    expect(validateDomainPart("example")).toBe(false);
   });
 
-  // 5.3.1
-  test("should return true for min lenght of 3 octets", () => {
-    const email = "name@a.a";
-    expect(validateDomainPart(email)).toBe(true);
+  test("Domain part, min length of 3 octets", () => {
+    expect(validateDomainPart("a.a")).toBe(true);
   });
 
-  // 5.3.2
-  test("should return true for max length of 253 octets", () => {
-    const email =
-      "name@xYK9Pk4uVnUUU5LBH74FZNZ9bNWJ6cLYuLUNLLzE20kyYJfmJ021PCt7DVMw7imGmpnDMk2BvLV6VZWAhPJckBhCijctde19ZPRPe90vYCSFUAvTDvtThu6ukS6m0ZF9kARJ35QT9JmBXXMXSeRXvWZggBV8S2v0GTN39cQJVS7ZG9vWXhTGUj57GF2E2JLq5qLReYkHqyZAVy0MHa37g35ZAgdizDptkzW1UGfJTEBg7AyZVfZENfEhrb2.com";
-    expect(validateDomainPart(email)).toBe(true);
+  test("Domain part, max length of 253 octets", () => {
+    const domain = `${"a".repeat(63)}.${"b".repeat(63)}.${"c".repeat(
+      63
+    )}.${"d".repeat(61)}`;
+    expect(validateDomainPart(domain)).toBe(true);
   });
 
-  // 5.3.3
-  test("should return false more than 253 octets", () => {
-    const email =
-      "name@xYK9Pk4uVnUUU5LBH74FZNZ9bNWJ6cLYuLUNLLzE20kyYJfmJ021PCt7DVMw7imGmpnDMk2BvLV6VZWAhPJckBhCijctde19ZPRPe90vYCSFUAvTDvtThu6ukS6m0ZF9kARJ35QT9JmBXXMXSeRXvWZggBV8S2v0GTN39cQJVS7ZG9vWXhTGUj57GF2E2JLq5qLReYkHqyZAVy0MHa37g35ZAgdizDptkzW1UGfJTEBg7AyZVfZENfEhrb27.com";
-    expect(validateDomainPart(email)).toBe(true);
+  test("Domain part, more than 253 octets", () => {
+    const domain = `${"a".repeat(63)}.${"b".repeat(63)}.${"c".repeat(
+      63
+    )}.${"d".repeat(65)}`;
+    expect(validateDomainPart(domain)).toBe(false);
   });
+
+  // Valid characters tests
+  test("Domain part, all uppercase", () => {
+    expect(validateDomainPart("EXAMPLE.COM")).toBe(true);
+  });
+
+  test("Domain part, all lowercase", () => {
+    expect(validateDomainPart("example.com")).toBe(true);
+  });
+
+  test("Domain part, title case", () => {
+    expect(validateDomainPart("Example.Com")).toBe(true);
+  });
+
+  // Special character validation - This needs specific implementation in your validateDomainPart function
+  test("Domain part, non-latin characters in SDL", () => {
+    expect(validateDomainPart("examçple.com")).toBe(false);
+  });
+
+  // Hyphen rules
+  test("Domain part, hyphen not as first or last character in SDL", () => {
+    expect(validateDomainPart("exam-ple.com")).toBe(true);
+  });
+
+  test("Domain part, leading hyphen in SDL", () => {
+    expect(validateDomainPart("-example.com")).toBe(false);
+  });
+
+  test("Domain part, trailing hyphen in SDL", () => {
+    expect(validateDomainPart("example-.com")).toBe(false);
+  });
+
+  test("Domain part, consecutive hyphens in SDL", () => {
+    expect(validateDomainPart("exam--ple.com")).toBe(false);
+  });
+
+  // Add remaining specific tests for characters, IP addresses, underscores, spaces, etc.
 });
