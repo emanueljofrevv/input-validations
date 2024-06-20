@@ -61,8 +61,8 @@ function validateEmail(email) {
 }
 
 module.exports = {
-  validateEmail,
   hasBasicStructure,
   getLocalPart,
   getDomainPart,
-}; // Export all functions for testing
+  validateEmail,
+};
