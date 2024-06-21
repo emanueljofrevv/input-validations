@@ -1,4 +1,6 @@
 const { Blob } = require("buffer");
+const { validateLocalPart } = require("./localPart");
+const { validateDomainPart } = require("./domainPart");
 
 // Helper functions
 function utf8ByteSize(string) {
@@ -22,16 +24,6 @@ function hasBasicStructure(email) {
     utf8ByteSize(domainPart) <= 253 &&
     domainLabels.every((label) => utf8ByteSize(label) <= 63)
   );
-}
-
-function validateLocalPart(localPart) {
-  // Assuming this function is properly implemented
-  return true;
-}
-
-function validateDomainPart(domainPart) {
-  // Assuming this function is properly implemented
-  return true;
 }
 
 function validateEmailLength(email) {
@@ -70,8 +62,6 @@ function getDomainPart(email) {
 
 module.exports = {
   hasBasicStructure,
-  validateLocalPart,
-  validateDomainPart,
   validateEmail,
   validateEmailLength, // Exporting for potential external use or testing
 };
