@@ -153,6 +153,7 @@ function validateDomainPart(domain) {
 function hasBasicStructure(email) {
   const atSymbolCount = (email.match(/@/g) || []).length;
   const parts = email.split("@");
+
   if (atSymbolCount !== 1 || parts.length !== 2) {
     return false; // Ensures one '@' and splits into two parts
   }
@@ -164,13 +165,11 @@ function hasBasicStructure(email) {
   return (
     utf8ByteSize(localPart) >= 1 &&
     utf8ByteSize(localPart) <= 64 &&
+    utf8ByteSize(domainPart) >= 3 &&
     utf8ByteSize(domainPart) <= 253 &&
-    domainLabels.every((label) => utf8ByteSize(label) <= 63)
+    domainLabels.every((label) => utf8ByteSize(label) <= 63) &&
+    utf8ByteSize(email) <= 320
   );
-}
-
-function validateEmailLength(email) {
-  return utf8ByteSize(email) <= 320;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -178,11 +177,6 @@ function validateEmailLength(email) {
 /* -------------------------------------------------------------------------- */
 
 function main(email) {
-  // Start by checking the overall email length
-  if (!validateEmailLength(email)) {
-    return false; // Email length exceeds 320 octets
-  }
-
   // Check the basic structure
   if (!hasBasicStructure(email)) {
     return false; // Basic structure is not correct

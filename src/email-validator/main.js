@@ -9,6 +9,7 @@ function utf8ByteSize(string) {
 function hasBasicStructure(email) {
   const atSymbolCount = (email.match(/@/g) || []).length;
   const parts = email.split("@");
+
   if (atSymbolCount !== 1 || parts.length !== 2) {
     return false; // Ensures one '@' and splits into two parts
   }
@@ -20,22 +21,18 @@ function hasBasicStructure(email) {
   return (
     utf8ByteSize(localPart) >= 1 &&
     utf8ByteSize(localPart) <= 64 &&
+    utf8ByteSize(domainPart) >= 3 &&
     utf8ByteSize(domainPart) <= 253 &&
-    domainLabels.every((label) => utf8ByteSize(label) <= 63)
+    domainLabels.every((label) => utf8ByteSize(label) <= 63) &&
+    utf8ByteSize(email) <= 320
   );
 }
 
-function validateEmailLength(email) {
-  return utf8ByteSize(email) <= 320;
-}
+/* -------------------------------------------------------------------------- */
+/*                                    MAIN                                    */
+/* -------------------------------------------------------------------------- */
 
-// Main validation function that orchestrates the validation process
 function validateEmail(email) {
-  // Start by checking the overall email length
-  if (!validateEmailLength(email)) {
-    return false; // Email length exceeds 320 octets
-  }
-
   // Check the basic structure
   if (!hasBasicStructure(email)) {
     return false; // Basic structure is not correct
@@ -44,6 +41,7 @@ function validateEmail(email) {
   // Proceed with more specific validations
   const localPart = getLocalPart(email);
   const domainPart = getDomainPart(email);
+
   if (!validateLocalPart(localPart) || !validateDomainPart(domainPart)) {
     return false; // Detailed validations failed
   }
@@ -62,5 +60,4 @@ function getDomainPart(email) {
 module.exports = {
   hasBasicStructure,
   validateEmail,
-  validateEmailLength, // Exporting for potential external use or testing
 };
