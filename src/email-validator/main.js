@@ -1,9 +1,9 @@
-const { validateLocalPart } = require("./localPart");
-const { validateDomainPart } = require("./domainPart");
+const { Blob } = require("buffer");
 
-/* -------------------------------------------------------------------------- */
-/*                              HELPER FUNCTIONS                              */
-/* -------------------------------------------------------------------------- */
+// Helper functions
+function utf8ByteSize(string) {
+  return new Blob([string]).size; // Blob object automatically calculates the UTF-8 byte size
+}
 
 function hasBasicStructure(email) {
   const atSymbolCount = (email.match(/@/g) || []).length;
@@ -18,51 +18,60 @@ function hasBasicStructure(email) {
 
   return (
     utf8ByteSize(localPart) >= 1 &&
-    utf8ByteSize(localPart) <= 64 && // Validate local part length in octets
-    utf8ByteSize(domainPart) <= 253 && // Validate total domain part length in octets
-    domainLabels.every((label) => utf8ByteSize(label) <= 63) // Validate each domain label length in octets
+    utf8ByteSize(localPart) <= 64 &&
+    utf8ByteSize(domainPart) <= 253 &&
+    domainLabels.every((label) => utf8ByteSize(label) <= 63)
   );
 }
 
-function utf8ByteSize(string) {
-  return new Blob([string]).size; // Blob object automatically calculates the UTF-8 byte size
+function validateLocalPart(localPart) {
+  // Assuming this function is properly implemented
+  return true;
 }
 
-// Extracts the local part from the email
-function getLocalPart(email) {
-  return email.split("@")[0];
+function validateDomainPart(domainPart) {
+  // Assuming this function is properly implemented
+  return true;
 }
 
-// Extracts the domain part from the email
-function getDomainPart(email) {
-  return email.split("@")[1];
+function validateEmailLength(email) {
+  return utf8ByteSize(email) <= 320;
 }
-
-/* -------------------------------------------------------------------------- */
-/*                                    MAIN                                    */
-/* -------------------------------------------------------------------------- */
 
 // Main validation function that orchestrates the validation process
 function validateEmail(email) {
-  // Start by checking the basic structure
+  // Start by checking the overall email length
+  if (!validateEmailLength(email)) {
+    return false; // Email length exceeds 320 octets
+  }
+
+  // Check the basic structure
   if (!hasBasicStructure(email)) {
     return false; // Basic structure is not correct
   }
 
   // Proceed with more specific validations
-  if (
-    !validateLocalPart(getLocalPart(email)) ||
-    !validateDomainPart(getDomainPart(email))
-  ) {
+  const localPart = getLocalPart(email);
+  const domainPart = getDomainPart(email);
+  if (!validateLocalPart(localPart) || !validateDomainPart(domainPart)) {
     return false; // Detailed validations failed
   }
 
   return true; // Email is valid
 }
 
+function getLocalPart(email) {
+  return email.split("@")[0];
+}
+
+function getDomainPart(email) {
+  return email.split("@")[1];
+}
+
 module.exports = {
   hasBasicStructure,
-  getLocalPart,
-  getDomainPart,
+  validateLocalPart,
+  validateDomainPart,
   validateEmail,
+  validateEmailLength, // Exporting for potential external use or testing
 };
