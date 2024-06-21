@@ -226,67 +226,67 @@ describe("Local Part Validation", () => {
 describe("Domain Part Validation", () => {
   // Domain part length validation
   test("Domain labels may be no more than 63 octets long", () => {
-    const domain = `${"a".repeat(63)}.com`;
+    const domain = `name@${"a".repeat(63)}.com`;
     expect(main(domain)).toBe(true);
   });
 
   // 5.1.1
   test("Domain part, min SDL length of 1 octet", () => {
-    expect(main("b.com")).toBe(true);
+    expect(main("name@b.com")).toBe(true);
   });
 
   // 5.1.2
   test("Domain part, max SDL length of 63 octets", () => {
-    const domain = `${"a".repeat(63)}.com`;
+    const domain = `name@${"a".repeat(63)}.com`;
     expect(main(domain)).toBe(true);
   });
 
   // 5.1.3
   test("Domain part, SDL length of more than 63 octets", () => {
-    const domain = `${"a".repeat(64)}.com`;
+    const domain = `name@${"a".repeat(64)}.com`;
     expect(main(domain)).toBe(false);
   });
 
   // 5.1.4
   test("Domain part, no SDL", () => {
-    expect(main(".com")).toBe(false);
+    expect(main("name@.com")).toBe(false);
   });
 
   // 5.1.5
   test("Domain part, no domain", () => {
-    expect(main("")).toBe(false);
+    expect(main("name@")).toBe(false);
   });
 
   // 5.2.1
   test("Domain part, TDL min length of 1 octet", () => {
-    expect(main("example.a")).toBe(true);
+    expect(main("name@example.a")).toBe(true);
   });
 
   // 5.2.2
   test("Domain part, TDL max length of 63 octets", () => {
     const tld = "a".repeat(63);
-    expect(main(`example.${tld}`)).toBe(true);
+    expect(main(`name@example.${tld}`)).toBe(true);
   });
 
   // 5.2.3
   test("Domain part, TDL of more than 63 octets", () => {
     const tld = "a".repeat(64);
-    expect(main(`example.${tld}`)).toBe(false);
+    expect(main(`name@example.${tld}`)).toBe(false);
   });
 
   // 5.2.4
   test("Domain part, no TDL", () => {
-    expect(main("example")).toBe(false);
+    expect(main("name@example")).toBe(false);
   });
 
   // 5.3.1
   test("Domain part, min length of 3 octets", () => {
-    expect(main("a.a")).toBe(true);
+    expect(main("name@a.a")).toBe(true);
   });
 
   // 5.3.2
   test("Domain part, max length of 253 octets", () => {
-    const domain = `${"a".repeat(63)}.${"b".repeat(63)}.${"c".repeat(
+    const domain = `name@${"a".repeat(63)}.${"b".repeat(63)}.${"c".repeat(
       63
     )}.${"d".repeat(61)}`;
     expect(main(domain)).toBe(true);
@@ -294,7 +294,7 @@ describe("Domain Part Validation", () => {
 
   // 5.3.3
   test("Domain part, more than 253 octets", () => {
-    const domain = `${"a".repeat(63)}.${"b".repeat(63)}.${"c".repeat(
+    const domain = `name@${"a".repeat(63)}.${"b".repeat(63)}.${"c".repeat(
       63
     )}.${"d".repeat(65)}`;
     expect(main(domain)).toBe(false);
@@ -303,313 +303,313 @@ describe("Domain Part Validation", () => {
   // Valid characters tests
   // 6.1.1
   test("Domain part, all uppercase", () => {
-    expect(main("EXAMPLE.COM")).toBe(true);
+    expect(main("name@EXAMPLE.COM")).toBe(true);
   });
 
   // 6.1.2
   test("Domain part, all lowercase", () => {
-    expect(main("example.com")).toBe(true);
+    expect(main("name@example.com")).toBe(true);
   });
 
   // 6.1.3
   test("Domain part, title case", () => {
-    expect(main("Example.Com")).toBe(true);
+    expect(main("name@Example.Com")).toBe(true);
   });
 
   // Special character validation - This needs specific implementation in your main function
   // 6.1.4
   test("Domain part, SDL extended ASCII, leading non-latin characters", () => {
-    expect(main("çexample.com")).toBe(false);
+    expect(main("name@çexample.com")).toBe(false);
   });
 
   // 6.1.5
   test("Domain part, SDL extended ASCII, trailing non-latin characters", () => {
-    expect(main("exampleç.com")).toBe(false);
+    expect(main("name@exampleç.com")).toBe(false);
   });
 
   // 6.1.6
   test("Domain part, SDL extended ASCII, non-latin characters not as first or last character", () => {
-    expect(main("canção.com")).toBe(false);
+    expect(main("name@canção.com")).toBe(false);
   });
 
   // 6.1.7
   test("Domain part, TDL extended ASCII, leading non-latin characters", () => {
-    expect(main("example.çom")).toBe(false);
+    expect(main("name@example.çom")).toBe(false);
   });
 
   // 6.1.8
   test("Domain part, TDL extended ASCII, trailing non-latin characters", () => {
-    expect(main("example.coç")).toBe(false);
+    expect(main("name@example.coç")).toBe(false);
   });
 
   // 6.1.9
   test("Domain part, TDL extended ASCII, non-latin characters not as first or last character", () => {
-    expect(main("example.cçm")).toBe(false);
+    expect(main("name@example.cçm")).toBe(false);
   });
 
   // 6.1.10
   test("Domain part, SDL Unicode, leading non-latin characters", () => {
-    expect(main("中example.com")).toBe(false);
+    expect(main("name@中example.com")).toBe(false);
   });
 
   // 6.1.11
   test("Domain part, SDL Unicode, trailing non-latin characters", () => {
-    expect(main("example中.com")).toBe(false);
+    expect(main("name@example中.com")).toBe(false);
   });
 
   // 6.1.12
   test("Domain part, SDL Unicode, non-latin characters not as first or last character", () => {
-    expect(main("exam中ple.com")).toBe(false);
+    expect(main("name@exam中ple.com")).toBe(false);
   });
 
   // 6.1.13
   test("Domain part, TDL Unicode, leading non-latin characters", () => {
-    expect(main("domain.中om")).toBe(false);
+    expect(main("name@domain.中om")).toBe(false);
   });
 
   // 6.1.14
   test("Domain part, TDL Unicode, trailing non-latin characters", () => {
-    expect(main("domain.co中")).toBe(false);
+    expect(main("name@domain.co中")).toBe(false);
   });
 
   // 6.1.15
   test("Domain part, TDL Unicode, non-latin characters not as first or last character", () => {
-    expect(main("domain.c中m")).toBe(false);
+    expect(main("name@domain.c中m")).toBe(false);
   });
 
   // 6.1.16
   test("Domain part, SDL Unicode, leading emoji", () => {
-    expect(main("❤️example.com")).toBe(false);
+    expect(main("name@❤️example.com")).toBe(false);
   });
 
   // 6.1.17
   test("Domain part, SDL Unicode, trailing emoji", () => {
-    expect(main("example❤️.com")).toBe(false);
+    expect(main("name@example❤️.com")).toBe(false);
   });
 
   // 6.1.18
   test("Domain part, SDL Unicode, emoji not as first or last character", () => {
-    expect(main("exam❤️ple.com")).toBe(false);
+    expect(main("name@exam❤️ple.com")).toBe(false);
   });
 
   // 6.1.19
   test("Domain part, TDL Unicode, leading emoji characters", () => {
-    expect(main("domain.❤️om")).toBe(false);
+    expect(main("name@domain.❤️om")).toBe(false);
   });
 
   // 6.1.20
   test("Domain part, TDL Unicode, trailing emoji characters", () => {
-    expect(main("domain.co❤️m")).toBe(false);
+    expect(main("name@domain.co❤️m")).toBe(false);
   });
 
   // 6.1.21
   test("Domain part, TDL Unicode, emoji not as first or last character", () => {
-    expect(main("domain.c❤️m")).toBe(false);
+    expect(main("name@domain.c❤️m")).toBe(false);
   });
 
   // 6.1.22
   test("Domain part, SDL leading non-printable character", () => {
-    expect(main("name­­.com")).toBe(false);
+    expect(main("name@name­­.com")).toBe(false);
   });
 
   // 6.1.23
   test("Domain part, SDL trailing non-printable character", () => {
-    expect(main("name­­.com")).toBe(false);
+    expect(main("name@name­­.com")).toBe(false);
   });
 
   // 6.1.24
   test("Domain part, SDL non-printable character not as first or last character", () => {
-    expect(main("name­­.com")).toBe(false);
+    expect(main("name@name­­.com")).toBe(false);
   });
 
   // 6.1.25
   test("Domain part, TDL leading non-printable character", () => {
-    expect(main("name.­­om")).toBe(false);
+    expect(main("name@name.­­om")).toBe(false);
   });
 
   // 6.1.26
   test("Domain part, TDL trailing non-printable character", () => {
-    expect(main("name.c­­m")).toBe(false);
+    expect(main("name@name.c­­m")).toBe(false);
   });
 
   // 6.1.27
   test("Domain part, TDL non-printable character not as first or last character", () => {
-    expect(main("name.co­­")).toBe(false);
+    expect(main("name@name.co­­")).toBe(false);
   });
 
   // 6.2.1
   test("Domain part, SLD with digit not as first or last character", () => {
-    expect(main("examp1e.com")).toBe(true);
+    expect(main("name@examp1e.com")).toBe(true);
   });
 
   // 6.2.2
   test("Domain part, SLD with leading digit", () => {
-    expect(main("1example.com")).toBe(true);
+    expect(main("name@1example.com")).toBe(true);
   });
 
   // 6.2.3
   test("Domain part, SLD with trailing digit", () => {
-    expect(main("example1.com")).toBe(true);
+    expect(main("name@example1.com")).toBe(true);
   });
 
   // 6.2.4
   test("Domain part, all-numeric SLD", () => {
-    expect(main("123.com")).toBe(true);
+    expect(main("name@123.com")).toBe(true);
   });
 
   // 6.2.5
   test("Domain part, TLD with digit not as first or last character", () => {
-    expect(main("example.c1om")).toBe(true);
+    expect(main("name@example.c1om")).toBe(true);
   });
 
   // 6.2.6
   test("Domain part, TLD with leading digit", () => {
-    expect(main("example.1com")).toBe(true);
+    expect(main("name@example.1com")).toBe(true);
   });
 
   // 6.2.7
   test("Domain part, TLD with trailing digit", () => {
-    expect(main("example.com1")).toBe(false);
+    expect(main("name@example.com1")).toBe(false);
   });
 
   // 6.2.8
   test("Domain part, all-numeric TLD", () => {
-    expect(main("example.123")).toBe(false);
+    expect(main("name@example.123")).toBe(false);
   });
 
   // Hyphen rules
   // 6.3.1
   test("Domain part, hyphen not as first or last character in SDL", () => {
-    expect(main("exam-ple.com")).toBe(true);
+    expect(main("name@exam-ple.com")).toBe(true);
   });
 
   // 6.3.2
   test("Domain part, leading hyphen in SDL", () => {
-    expect(main("-example.com")).toBe(false);
+    expect(main("name@-example.com")).toBe(false);
   });
 
   // 6.3.3
   test("Domain part, trailing hyphen in SDL", () => {
-    expect(main("example-.com")).toBe(false);
+    expect(main("name@example-.com")).toBe(false);
   });
 
   // 6.3.4
   test("Domain part, consecutive hyphens in SDL", () => {
-    expect(main("exam--ple.com")).toBe(false);
+    expect(main("name@exam--ple.com")).toBe(false);
   });
 
   // 6.3.5
   test("Domain part, TLD hyphen not as first or last character", () => {
-    expect(main("example.co-m")).toBe(true);
+    expect(main("name@example.co-m")).toBe(true);
   });
 
   // 6.3.6
   test("Domain part, TLD leading hyphen", () => {
-    expect(main("example.-com")).toBe(false);
+    expect(main("name@example.-com")).toBe(false);
   });
 
   // 6.3.7
   test("Domain part, TLD trailing hyphen", () => {
-    expect(main("example.com-")).toBe(false);
+    expect(main("name@example.com-")).toBe(false);
   });
 
   // 6.3.8
   test("Domain part, TLD 2 consecutive hyphens", () => {
-    expect(main("example.c--m")).toBe(false);
+    expect(main("name@example.c--m")).toBe(false);
   });
 
   // 6.4.1
   test("Domain part, no dot", () => {
-    expect(main("examplecom")).toBe(false);
+    expect(main("name@examplecom")).toBe(false);
   });
 
   // 6.4.3
   test("Domain part, 2 non-consecutive dots", () => {
-    expect(main("example.com.uy")).toBe(true);
+    expect(main("name@example.com.uy")).toBe(true);
   });
 
   // 6.4.4
   test("Domain part, 2 consecutive dots", () => {
-    expect(main("example..com")).toBe(false);
+    expect(main("name@example..com")).toBe(false);
   });
 
   // 6.4.5
   test("Domain part, leading dot", () => {
-    expect(main(".example.com")).toBe(false);
+    expect(main("name@.example.com")).toBe(false);
   });
 
   // 6.4.6
   test("Domain part, trailing dot", () => {
-    expect(main(" example.com.")).toBe(false);
+    expect(main("name@example.com.")).toBe(false);
   });
 
   // 6.5.1
   test("Domain part, valid IP address", () => {
-    expect(main("123.123.123.123")).toBe(true);
+    expect(main("name@123.123.123.123")).toBe(true);
   });
 
   // 6.5.2
   test("Domain part, invalid IP addres", () => {
-    expect(main("123.123.123.12345678")).toBe(false);
+    expect(main("name@123.123.123.12345678")).toBe(false);
   });
 
   // 6.6.1
   test("Domain part, SLD leading underscore", () => {
-    expect(main("_example.com")).toBe(false);
+    expect(main("name@_example.com")).toBe(false);
   });
 
   // 6.6.2
   test("Domain part, SLD trailing underscore", () => {
-    expect(main("example_.com")).toBe(false);
+    expect(main("name@example_.com")).toBe(false);
   });
 
   // 6.6.3
   test("Domain part, SLD not as first or last character", () => {
-    expect(main("exam_ple.com")).toBe(false);
+    expect(main("name@exam_ple.com")).toBe(false);
   });
 
   // 6.6.4
   test("Domain part, TLD leading underscore", () => {
-    expect(main("example._com")).toBe(false);
+    expect(main("name@example._com")).toBe(false);
   });
 
   // 6.6.5
   test("Domain part, TLD trailing underscore", () => {
-    expect(main("example.com_")).toBe(false);
+    expect(main("name@example.com_")).toBe(false);
   });
 
   // 6.6.6
   test("Domain part, TLD underscore not as firt or last character", () => {
-    expect(main("example.co_m")).toBe(false);
+    expect(main("name@example.co_m")).toBe(false);
   });
 
   // 6.7.1
   test("Domain part, leading blank space in SDL", () => {
-    expect(main(" example.com")).toBe(false);
+    expect(main("name@ example.com")).toBe(false);
   });
 
   // 6.7.2
   test("Domain part, trailing blank space in SDL", () => {
-    expect(main("example .com")).toBe(false);
+    expect(main("name@example .com")).toBe(false);
   });
 
   // 6.7.3
   test("Domain part, space not as first or last character in SDL", () => {
-    expect(main("exam ple.com")).toBe(false);
+    expect(main("name@exam ple.com")).toBe(false);
   });
 
   // 6.7.4
   test("Domain part, leading blank space in TDL", () => {
-    expect(main("example. com")).toBe(false);
+    expect(main("name@example. com")).toBe(false);
   });
 
   // 6.7.5
   test("Domain part, trailing blank space in TDL", () => {
-    expect(main("name@example.com ")).toBe(false);
+    expect(main("name@name@example.com ")).toBe(false);
   });
 
   // 6.7.6
   test("Domain part, space not as first or last character in TDL", () => {
-    expect(main("example.c om")).toBe(false);
+    expect(main("name@example.c om")).toBe(false);
   });
 });
