@@ -1,12 +1,13 @@
-const { Blob } = require("buffer");
+function utf8ByteSize(string) {
+  return new TextEncoder().encode(string).length;
+}
 
-// Helper functions
 function isNotEmpty(localPart) {
   return localPart.length > 0;
 }
 
 function hasValidLength(localPart) {
-  return new Blob([localPart]).size >= 1 && new Blob([localPart]).size <= 64;
+  return utf8ByteSize(localPart) >= 1 && utf8ByteSize(localPart) <= 64;
 }
 
 function hasNoConsecutiveDots(localPart) {

@@ -1,15 +1,18 @@
-const { Blob } = require("buffer");
-
 // Helper functions for domain part validation
+
+function utf8ByteSize(string) {
+  return new TextEncoder().encode(string).length;
+}
+
 function isValidOverallLength(domain) {
-  return new Blob([domain]).size <= 253;
+  return utf8ByteSize(domain) <= 253;
 }
 
 function hasValidLabels(domain) {
   const labels = domain.split(".");
   return labels.every(
     (label) =>
-      new Blob([label]).size <= 63 &&
+      utf8ByteSize(label) <= 63 &&
       /^[a-zA-Z0-9-]*$/.test(label) &&
       !label.startsWith("-") &&
       !label.endsWith("-")
@@ -38,7 +41,7 @@ function hasValidTLD(domain) {
   // Ensure TLD is at least 1 character, does not end with a digit, and isn't fully numeric
   return (
     /^[a-zA-Z0-9-]*[a-zA-Z-]$/.test(tld) && // TLD can contain digits and hyphens, but must end with a letter or a hyphen that is not leading
-    new Blob([tld]).size <= 63
+    utf8ByteSize(tld) <= 63
   );
 }
 
@@ -62,7 +65,7 @@ function isValidIPAddress(ip) {
 }
 
 function validateDomainPart(domain) {
-  if (new Blob([domain]).size < 3) {
+  if (utf8ByteSize(domain) < 3) {
     return false; // Minimum domain length check
   }
 

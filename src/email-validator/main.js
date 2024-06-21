@@ -1,10 +1,9 @@
-const { Blob } = require("buffer");
 const { validateLocalPart } = require("./localPart");
 const { validateDomainPart } = require("./domainPart");
 
 // Helper functions
 function utf8ByteSize(string) {
-  return new Blob([string]).size; // Blob object automatically calculates the UTF-8 byte size
+  return new TextEncoder().encode(string).length;
 }
 
 function hasBasicStructure(email) {
