@@ -62,7 +62,7 @@ function isValidIPAddress(ip) {
 }
 
 function validateDomainPart(domain) {
-  if (domain.length < 3) {
+  if (new Blob([domain]).size < 3) {
     return false; // Minimum domain length check
   }
 
