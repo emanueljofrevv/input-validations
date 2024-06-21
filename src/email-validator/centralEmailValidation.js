@@ -1,24 +1,40 @@
 const { Blob } = require("buffer");
 
 /* -------------------------------------------------------------------------- */
+/*                              HELPER FUNCTIONS                              */
+/* -------------------------------------------------------------------------- */
+
+function getLocalPart(email) {
+  return email.split("@")[0];
+}
+
+function getDomainPart(email) {
+  return email.split("@")[1];
+}
+
+function utf8ByteSize(string) {
+  return new Blob([string]).size; // Blob object automatically calculates the UTF-8 byte size
+}
+
+/* -------------------------------------------------------------------------- */
 /*                           LOCAL PART VALIDATIONS                           */
 /* -------------------------------------------------------------------------- */
 
-// Helper functions
 function isNotEmpty(localPart) {
   return localPart.length > 0;
 }
 
 function hasValidLength(localPart) {
-  return new Blob([localPart]).size >= 1 && new Blob([localPart]).size <= 64;
+  const localPartSize = utf8ByteSize(localPart);
+  return localPartSize >= 1 && localPartSize <= 64;
 }
 
-function hasNoConsecutiveDots(localPart) {
-  return !localPart.includes("..");
+function hasNoConsecutiveDots(part) {
+  return !part.includes("..");
 }
 
-function doesNotStartOrEndWithDot(localPart) {
-  return !localPart.startsWith(".") && !localPart.endsWith(".");
+function doesNotStartOrEndWithDot(part) {
+  return !part.startsWith(".") && !part.endsWith(".");
 }
 
 function hasValidCharacters(localPart) {
@@ -58,14 +74,14 @@ function validateLocalPart(localPart) {
 /* -------------------------------------------------------------------------- */
 
 function isValidOverallLength(domain) {
-  return new Blob([domain]).size <= 253;
+  return utf8ByteSize(domain) <= 253;
 }
 
 function hasValidLabels(domain) {
   const labels = domain.split(".");
   return labels.every(
     (label) =>
-      new Blob([label]).size <= 63 &&
+      utf8ByteSize(label) <= 63 &&
       /^[a-zA-Z0-9-]*$/.test(label) &&
       !label.startsWith("-") &&
       !label.endsWith("-")
@@ -81,20 +97,12 @@ function hasNoConsecutiveHyphens(domain) {
   return !domain.includes("--");
 }
 
-function hasNoConsecutiveDots(domain) {
-  return !domain.includes("..");
-}
-
-function doesNotStartOrEndWithDot(domain) {
-  return !domain.startsWith(".") && !domain.endsWith(".");
-}
-
 function hasValidTLD(domain) {
   const tld = domain.substring(domain.lastIndexOf(".") + 1);
   // Ensure TLD is at least 1 character, does not end with a digit, and isn't fully numeric
   return (
     /^[a-zA-Z0-9-]*[a-zA-Z-]$/.test(tld) && // TLD can contain digits and hyphens, but must end with a letter or a hyphen that is not leading
-    new Blob([tld]).size <= 63
+    utf8ByteSize(tld) <= 63
   );
 }
 
@@ -118,7 +126,7 @@ function isValidIPAddress(ip) {
 }
 
 function validateDomainPart(domain) {
-  if (new Blob([domain]).size < 3) {
+  if (utf8ByteSize(domain) < 3) {
     return false; // Minimum domain length check
   }
 
@@ -144,6 +152,53 @@ function validateDomainPart(domain) {
 /*                             GENERAL VALIDATIONS                            */
 /* -------------------------------------------------------------------------- */
 
+function hasBasicStructure(email) {
+  const atSymbolCount = (email.match(/@/g) || []).length;
+  const parts = email.split("@");
+  if (atSymbolCount !== 1 || parts.length !== 2) {
+    return false; // Ensures one '@' and splits into two parts
+  }
+
+  const localPart = parts[0];
+  const domainPart = parts[1];
+  const domainLabels = domainPart.split(".");
+
+  return (
+    utf8ByteSize(localPart) >= 1 &&
+    utf8ByteSize(localPart) <= 64 &&
+    utf8ByteSize(domainPart) <= 253 &&
+    domainLabels.every((label) => utf8ByteSize(label) <= 63)
+  );
+}
+
+function validateEmailLength(email) {
+  return utf8ByteSize(email) <= 320;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                    MAIN                                    */
 /* -------------------------------------------------------------------------- */
+
+function main(email) {
+  // Start by checking the overall email length
+  if (!validateEmailLength(email)) {
+    return false; // Email length exceeds 320 octets
+  }
+
+  // Check the basic structure
+  if (!hasBasicStructure(email)) {
+    return false; // Basic structure is not correct
+  }
+
+  // Proceed with more specific validations
+  const localPart = getLocalPart(email);
+  const domainPart = getDomainPart(email);
+
+  if (!validateLocalPart(localPart) || !validateDomainPart(domainPart)) {
+    return false; // Detailed validations failed
+  }
+
+  return true; // Email is valid
+}
+
+module.exports = { main };
